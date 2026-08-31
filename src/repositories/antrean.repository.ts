@@ -20,3 +20,18 @@ export async function createAntreanRegistration(data: CreateAntreanDto): Promise
     ]
   );
 }
+
+export async function getAntreanHariIni(): Promise<any[]> {
+  const result = await pool.query("SELECT * FROM v_antrean_hari_ini");
+  return result.rows;
+}
+
+export async function batalkanAntrean(
+  antreanId: number,
+  alasan: string
+): Promise<void> {
+  await pool.query("CALL sp_batalkan_antrean_pasien($1, $2)", [
+    antreanId,
+    alasan,
+  ]);
+}
