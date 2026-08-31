@@ -36,3 +36,46 @@ export async function createAntrean(req: Request, res: Response) {
     return res.status(400).json({ success: false, message: err.message });
   }
 }
+
+export async function fetchAntreanHariIni(_req: Request, res: Response): Promise<Response> {
+  try {
+    const data = await antreanService.fetchAntreanHariIni();
+    return res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil daftar antrean hari ini",
+      data,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan pada server";
+    return res.status(500).json({ 
+      success: false, 
+      message 
+    });
+  }
+}
+
+export async function cancelAntrean(req: Request, res: Response): Promise<Response> {
+  try {
+    const { antrean_id, alasan } = req.body;
+
+    if (!antrean_id || !alasan) {
+      return res.status(400).json({
+        success: false,
+        message: "antrean_id dan alasan wajib diisi",
+      });
+    }
+
+    await antreanService.cancelAntrean(Number(antrean_id), alasan);
+
+    return res.status(200).json({
+      success: true,
+      message: "Antrean pasien berhasil dibatalkan",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan pada server";
+    return res.status(500).json({
+      success: false,
+      message,
+    });
+  }
+}
