@@ -89,6 +89,25 @@ GROUP BY
     rm.catatan_json
 ORDER BY rm.id DESC;
 
+CREATE OR REPLACE VIEW v_antrean_hari_ini AS
+SELECT 
+    a.id AS antrean_id,
+    a.nomor_antrean,
+    p.nik,
+    p.nama_lengkap AS nama_pasien,
+    p.telepon,
+    d.nama_dokter,
+    d.spesialis,
+    a.tanggal_berobat,
+    a.status,
+    a.metadata_json,
+    a.created_at AS waktu_daftar
+FROM antrean a
+JOIN pasien p ON a.pasien_id = p.id
+JOIN dokter d ON a.dokter_id = d.id
+WHERE a.tanggal_berobat = CURRENT_DATE
+ORDER BY a.nomor_antrean ASC;
+
 
 CREATE OR REPLACE FUNCTION fn_total_pasien_bulanan(
     p_bulan INT, 

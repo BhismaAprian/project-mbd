@@ -40,3 +40,38 @@ BEGIN
     VALUES (v_pasien_id, p_dokter_id, p_tgl_berobat, v_no_antrean, p_meta);
 END;
 $$;
+
+CREATE OR REPLACE PROCEDURE sp_batalkan_antrean_pasien(
+    p_antrean_id INT,
+    p_alasan TEXT
+)
+AS $$
+DECLARE
+    v_status VARCHAR(20);
+BEGIN
+    SELECT status INTO v_status
+    FROM antrean
+    WHERE id = p_antrean_id;
+
+    IF v_status IS NULL THEN
+        RAISE EXCEPTION 'Data antrean dengan ID % tidak ditemukan', p_antrean_id;
+    END IF;
+
+    IF v_status = 'Batal' THEN
+        RAISE EXCEPTION 'Antrean ID % sudah dibatalkan sebelumnya', p_antrean_id;
+    END IF;
+
+    IF v_status = 'Selesai' THEN
+        RAISE EXCEPTION 'Antrean ID % tidak dapat dibatalkan karena transaksi sudah selesai', p_antrean_id;
+    END IF;
+
+    UPDATE antrean
+    SET 
+        status = 'Batal',
+        metadata_json = COALESCE(metadata_json, '{}'::jsonb) || jsonb_build_object(
+            'alasan_batal', p_alasan,
+            'waktu_batal', CURRENT_TIMESTAMP
+        )
+    WHERE id = p_antrean_id;
+END;
+$$ LANGUAGE plpgsql;

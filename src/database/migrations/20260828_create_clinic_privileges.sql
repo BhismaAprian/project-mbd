@@ -37,8 +37,10 @@ GRANT SELECT ON v_rekam_medis_lengkap TO admin_role;
 GRANT EXECUTE ON FUNCTION fn_total_pasien_bulanan(INT, INT) TO admin_role;
 GRANT EXECUTE ON PROCEDURE sp_generate_laporan_bulanan(INT, INT) TO admin_role;
 
-
+GRANT SELECT ON v_antrean_hari_ini TO pendaftaran_role;
 GRANT SELECT ON users TO pendaftaran_role, dokter_role, kasir_role;
+
+GRANT EXECUTE ON PROCEDURE sp_batalkan_antrean_pasien(INT, TEXT) TO pendaftaran_role;
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_role;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO admin_role;
