@@ -33,3 +33,28 @@ export async function createPemeriksaan(req: Request, res: Response) {
     return res.status(400).json({ success: false, message: err.message });
   }
 }
+
+export async function restockObat(req: Request, res: Response) {
+  try {
+    const { obat_id, jumlah } = req.body;
+
+    if (!obat_id || !jumlah) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "obat_id dan jumlah wajib diisi" 
+      });
+    }
+
+    await pemeriksaanService.restockObat({ 
+      obat_id: Number(obat_id), 
+      jumlah: Number(jumlah) 
+    });
+
+    return res.status(200).json({ 
+      success: true, 
+      message: "Restock stok obat berhasil diproses" 
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
