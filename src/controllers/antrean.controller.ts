@@ -12,7 +12,7 @@ export async function getKuota(_req: Request, res: Response) {
 
 export async function createAntrean(req: Request, res: Response) {
   try {
-    const { nik, nama, tanggal_lahir, telepon, dokter_id, tanggal, metadata } = req.body;
+    const { nik, nama, tanggal_lahir, telepon, dokter_id, tanggal } = req.body;
 
     if (!nik || typeof nik !== "string" || nik.trim().length !== 16) {
       return res.status(400).json({ success: false, message: "NIK wajib 16 digit" });
@@ -30,7 +30,7 @@ export async function createAntrean(req: Request, res: Response) {
       return res.status(400).json({ success: false, message: "Tanggal berobat wajib diisi (YYYY-MM-DD)" });
     }
 
-    await antreanService.registerAntrean({ nik, nama, tanggal_lahir, telepon, dokter_id, tanggal, metadata });
+    await antreanService.registerAntrean({ nik, nama, tanggal_lahir, telepon, dokter_id, tanggal });
     return res.status(201).json({ success: true, message: "Pendaftaran antrean berhasil" });
   } catch (err: any) {
     return res.status(400).json({ success: false, message: err.message });
@@ -47,10 +47,7 @@ export async function fetchAntreanHariIni(_req: Request, res: Response): Promise
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Terjadi kesalahan pada server";
-    return res.status(500).json({ 
-      success: false, 
-      message 
-    });
+    return res.status(500).json({ success: false, message });
   }
 }
 
@@ -58,14 +55,14 @@ export async function cancelAntrean(req: Request, res: Response): Promise<Respon
   try {
     const { antrean_id, alasan } = req.body;
 
-    if (!antrean_id || !alasan) {
-      return res.status(400).json({
-        success: false,
-        message: "antrean_id dan alasan wajib diisi",
-      });
+    if (!antrean_id || typeof antrean_id !== "number") {
+      return res.status(400).json({ success: false, message: "ID Antrean wajib berupa angka" });
+    }
+    if (!alasan || typeof alasan !== "string" || alasan.trim() === "") {
+      return res.status(400).json({ success: false, message: "Alasan pembatalan wajib diisi" });
     }
 
-    await antreanService.cancelAntrean(Number(antrean_id), alasan);
+    await antreanService.cancelAntrean(antrean_id, alasan);
 
     return res.status(200).json({
       success: true,
@@ -73,9 +70,6 @@ export async function cancelAntrean(req: Request, res: Response): Promise<Respon
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Terjadi kesalahan pada server";
-    return res.status(500).json({
-      success: false,
-      message,
-    });
+    return res.status(400).json({ success: false, message });
   }
 }
