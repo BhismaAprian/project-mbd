@@ -1,7 +1,7 @@
 export interface ProcessPembayaranDto {
   antrean_id: number;
   diskon_persen?: number;
-  metode_json?: Record<string, any>;
+  metode_pembayaran?: 'Cash' | 'QRIS' | 'Transfer' | 'Debit'; 
 }
 
 export interface TagihanKasirReport {
