@@ -12,13 +12,7 @@ LEFT JOIN antrean a
     ON d.id = a.dokter_id 
    AND a.tanggal_berobat = CURRENT_DATE 
    AND a.status <> 'Batal'
-GROUP BY 
-    d.id, 
-    d.nama_dokter, 
-    d.spesialis, 
-    d.tarif_jasa, 
-    d.kuota_harian;
-
+GROUP BY d.id, d.nama_dokter, d.spesialis, d.tarif_jasa, d.kuota_harian;
 
 CREATE OR REPLACE VIEW v_stok_obat_aktif AS
 SELECT 
@@ -46,24 +40,18 @@ JOIN dokter d ON a.dokter_id = d.id
 LEFT JOIN rekam_medis rm ON a.id = rm.antrean_id
 LEFT JOIN resep_detail rd ON rm.id = rd.rekam_medis_id
 WHERE a.status = 'Periksa'
-GROUP BY 
-    a.id, 
-    a.nomor_antrean, 
-    p.nama_lengkap, 
-    d.nama_dokter, 
-    d.tarif_jasa, 
-    a.status;
-
+GROUP BY a.id, a.nomor_antrean, p.nama_lengkap, d.nama_dokter, d.tarif_jasa, a.status;
 
 CREATE OR REPLACE VIEW v_rekam_medis_lengkap AS
 SELECT 
     rm.id AS rekam_medis_id,
-    a.tanggal_berobat,
+    rm.pasien_id,
     p.nik,
     p.nama_lengkap AS nama_pasien,
     d.nama_dokter,
+    a.tanggal_berobat,
     rm.diagnosa,
-    rm.catatan_json,
+    rm.catatan_dokter,
     COALESCE(
         jsonb_agg(
             jsonb_build_object(
@@ -75,18 +63,11 @@ SELECT
     ) AS rincian_resep
 FROM rekam_medis rm
 JOIN antrean a ON rm.antrean_id = a.id
-JOIN pasien p ON a.pasien_id = p.id
+JOIN pasien p ON rm.pasien_id = p.id
 JOIN dokter d ON a.dokter_id = d.id
 LEFT JOIN resep_detail rd ON rm.id = rd.rekam_medis_id
 LEFT JOIN obat o ON rd.obat_id = o.id
-GROUP BY 
-    rm.id, 
-    a.tanggal_berobat, 
-    p.nik, 
-    p.nama_lengkap, 
-    d.nama_dokter, 
-    rm.diagnosa, 
-    rm.catatan_json
+GROUP BY rm.id, rm.pasien_id, p.nik, p.nama_lengkap, d.nama_dokter, a.tanggal_berobat, rm.diagnosa, rm.catatan_dokter
 ORDER BY rm.id DESC;
 
 CREATE OR REPLACE VIEW v_antrean_hari_ini AS
@@ -100,7 +81,7 @@ SELECT
     d.spesialis,
     a.tanggal_berobat,
     a.status,
-    a.metadata_json,
+    a.alasan_batal,
     a.created_at AS waktu_daftar
 FROM antrean a
 JOIN pasien p ON a.pasien_id = p.id
@@ -108,35 +89,14 @@ JOIN dokter d ON a.dokter_id = d.id
 WHERE a.tanggal_berobat = CURRENT_DATE
 ORDER BY a.nomor_antrean ASC;
 
-
-CREATE OR REPLACE FUNCTION fn_total_pasien_bulanan(
-    p_bulan INT, 
-    p_tahun INT
-)
-RETURNS INT AS $$
-DECLARE 
-    v_total INT;
-BEGIN
-    SELECT COUNT(id) INTO v_total 
-    FROM antrean 
-    WHERE EXTRACT(MONTH FROM tanggal_berobat) = p_bulan 
-      AND EXTRACT(YEAR FROM tanggal_berobat) = p_tahun;
-
-    RETURN v_total;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE PROCEDURE sp_generate_laporan_bulanan(
-    p_bulan INT, 
-    p_tahun INT
-)
-AS $$
-DECLARE
-    v_total_pasien INT;
-BEGIN
-    v_total_pasien := fn_total_pasien_bulanan(p_bulan, p_tahun);
-    
-    RAISE NOTICE 'Laporan Bulan % Tahun %: Total Pasien = %', p_bulan, p_tahun, v_total_pasien;
-END;
-$$ LANGUAGE plpgsql;
+CREATE OR REPLACE VIEW v_log_aktivitas_terbaru AS
+SELECT 
+    id,
+    pengguna,
+    aksi,
+    id_referensi,
+    keterangan,
+    created_at
+FROM log_aktivitas
+ORDER BY id DESC
+LIMIT 20;

@@ -16,7 +16,7 @@ $$;
 
 CREATE OR REPLACE PROCEDURE sp_daftar_antrean_pasien(
     p_nik VARCHAR, p_nama VARCHAR, p_tgl_lahir DATE, p_telp VARCHAR, 
-    p_dokter_id INT, p_tgl_berobat DATE, p_meta JSONB DEFAULT NULL
+    p_dokter_id INT, p_tgl_berobat DATE
 )
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -36,8 +36,8 @@ BEGIN
     SELECT COALESCE(MAX(nomor_antrean), 0) + 1 INTO v_no_antrean 
     FROM antrean WHERE dokter_id = p_dokter_id AND tanggal_berobat = p_tgl_berobat;
 
-    INSERT INTO antrean (pasien_id, dokter_id, tanggal_berobat, nomor_antrean, metadata_json)
-    VALUES (v_pasien_id, p_dokter_id, p_tgl_berobat, v_no_antrean, p_meta);
+    INSERT INTO antrean (pasien_id, dokter_id, tanggal_berobat, nomor_antrean)
+    VALUES (v_pasien_id, p_dokter_id, p_tgl_berobat, v_no_antrean);
 END;
 $$;
 
@@ -45,13 +45,11 @@ CREATE OR REPLACE PROCEDURE sp_batalkan_antrean_pasien(
     p_antrean_id INT,
     p_alasan TEXT
 )
-AS $$
+LANGUAGE plpgsql AS $$
 DECLARE
     v_status VARCHAR(20);
 BEGIN
-    SELECT status INTO v_status
-    FROM antrean
-    WHERE id = p_antrean_id;
+    SELECT status INTO v_status FROM antrean WHERE id = p_antrean_id;
 
     IF v_status IS NULL THEN
         RAISE EXCEPTION 'Data antrean dengan ID % tidak ditemukan', p_antrean_id;
@@ -66,12 +64,7 @@ BEGIN
     END IF;
 
     UPDATE antrean
-    SET 
-        status = 'Batal',
-        metadata_json = COALESCE(metadata_json, '{}'::jsonb) || jsonb_build_object(
-            'alasan_batal', p_alasan,
-            'waktu_batal', CURRENT_TIMESTAMP
-        )
+    SET status = 'Batal', alasan_batal = p_alasan
     WHERE id = p_antrean_id;
 END;
-$$ LANGUAGE plpgsql;
+$$;

@@ -8,9 +8,9 @@ INSERT INTO obat (nama_obat, harga_satuan, stok) VALUES
     ('Amoxicillin 500mg', 12000.00, 50),
     ('Ibuprofen 400mg', 8000.00, 60);
 
-INSERT INTO pasien (nik, nama_lengkap, tanggal_lahir, telepon) VALUES
-    ('12345678', 'Dylanda INGFINIT', '1995-04-23', '081234567890')
-ON CONFLICT (nik) DO NOTHING;
+INSERT INTO pasien (nik, nama_lengkap, jenis_kelamin, tanggal_lahir, telepon, alamat) VALUES
+    ('1234567890123456', 'Dylanda INGFINIT', 'Laki-laki', '1995-04-23', '081234567890', 'Balikpapan'),
+    ('3201015508980002', 'Siti Aminah', 'Perempuan', '1998-08-15', '085712345678', 'Samarinda');
 
 INSERT INTO users (email, password, role) VALUES
     ('admin@klinik.com', 'password123', 'admin'),

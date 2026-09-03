@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION fn_hitung_total_bayar(
     p_antrean_id INT, 
     p_diskon_persen DECIMAL
 )
-RETURNS DECIMAL AS $$
+RETURNS DECIMAL LANGUAGE plpgsql AS $$
 DECLARE
     v_bruto DECIMAL;
 BEGIN
@@ -18,15 +18,14 @@ BEGIN
 
     RETURN v_bruto - (v_bruto * (p_diskon_persen / 100));
 END;
-$$ LANGUAGE plpgsql;
-
+$$;
 
 CREATE OR REPLACE PROCEDURE sp_proses_pembayaran(
     p_antrean_id INT, 
     p_diskon DECIMAL, 
-    p_metode JSONB
+    p_metode_pembayaran VARCHAR DEFAULT 'Cash'
 )
-AS $$
+LANGUAGE plpgsql AS $$
 DECLARE
     v_netto DECIMAL;
     v_bruto DECIMAL;
@@ -44,17 +43,47 @@ BEGIN
         total_bruto, 
         diskon_persen, 
         total_netto, 
-        metode_json
+        metode_pembayaran
     ) VALUES (
         p_antrean_id, 
         v_bruto, 
         p_diskon, 
         v_netto, 
-        p_metode
+        p_metode_pembayaran
     );
 
-    UPDATE antrean 
-    SET status = 'Selesai' 
-    WHERE id = p_antrean_id;
+    UPDATE antrean SET status = 'Selesai' WHERE id = p_antrean_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION fn_total_pasien_bulanan(p_bulan INT, p_tahun INT)
+RETURNS INT LANGUAGE plpgsql AS $$
+DECLARE v_total INT;
+BEGIN
+    SELECT COUNT(id) INTO v_total 
+    FROM antrean 
+    WHERE EXTRACT(MONTH FROM tanggal_berobat) = p_bulan 
+      AND EXTRACT(YEAR FROM tanggal_berobat) = p_tahun;
+    RETURN v_total;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION fn_total_pendapatan_hari_ini()
+RETURNS DECIMAL AS $$
+BEGIN
+    RETURN (
+        SELECT COALESCE(SUM(total_netto), 0) 
+        FROM pembayaran 
+        WHERE DATE(created_at) = CURRENT_DATE
+    );
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE sp_generate_laporan_bulanan(p_bulan INT, p_tahun INT)
+LANGUAGE plpgsql AS $$
+DECLARE v_total_pasien INT;
+BEGIN
+    v_total_pasien := fn_total_pasien_bulanan(p_bulan, p_tahun);
+    RAISE NOTICE 'Laporan Bulan % Tahun %: Total Pasien = %', p_bulan, p_tahun, v_total_pasien;
+END;
+$$;
