@@ -1,5 +1,5 @@
 import { pool } from "@config/db";
-import type { CreatePemeriksaanDto, StokObatReport } from "@models/pemeriksaan.model";
+import type { CreatePemeriksaanDto, StokObatReport, RestockObatDto } from "@models/pemeriksaan.model";
 
 export async function findStokObatAktif(): Promise<StokObatReport[]> {
   const res = await pool.query<StokObatReport>("SELECT * FROM v_stok_obat_aktif");
@@ -16,5 +16,11 @@ export async function createPemeriksaanMedis(data: CreatePemeriksaanDto): Promis
       data.catatan_dokter || null,
       data.resep_items ? JSON.stringify(data.resep_items) : null,
     ]
+  );
+}
+export async function restockStokObat(data: RestockObatDto): Promise<void> {
+  await pool.query(
+    "CALL sp_restock_obat($1, $2)",
+    [data.obat_id, data.jumlah]
   );
 }

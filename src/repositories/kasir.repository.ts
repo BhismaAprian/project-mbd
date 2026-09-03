@@ -12,7 +12,7 @@ export async function createPembayaranKasir(data: ProcessPembayaranDto): Promise
     [
       data.antrean_id,
       data.diskon_persen || 0,
-      data.metode_pembayaran || 'CASH',
+      data.metode_pembayaran || 'Cash',
     ]
   );
 }
