@@ -6,7 +6,7 @@ export interface ResepItemDto {
 export interface CreatePemeriksaanDto {
   antrean_id: number;
   diagnosa: string;
-  catatan_json?: Record<string, any>;
+  catatan_dokter?: string;
   resep_items?: ResepItemDto[];
 }
 
@@ -16,3 +16,4 @@ export interface StokObatReport {
   harga_satuan: number;
   sisa_stok: number;
 }
+
