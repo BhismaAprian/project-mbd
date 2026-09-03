@@ -1,4 +1,4 @@
-import type { CreateAntreanDto, KuotaDokterReport } from "@models/antrean.model";
+import type { BatalkanAntreanDto, CreateAntreanDto, KuotaDokterReport } from "@models/antrean.model";
 import * as antreanRepo from "@repositories/antrean.repository";
 
 export async function getKuotaDokter(): Promise<KuotaDokterReport[]> {
@@ -13,9 +13,6 @@ export async function fetchAntreanHariIni(): Promise<unknown> {
   return antreanRepo.getAntreanHariIni();
 }
 
-export async function cancelAntrean(
-  antreanId: number, 
-  alasan: string
-): Promise<unknown> {
-  return antreanRepo.batalkanAntrean(antreanId, alasan);
+export async function cancelAntrean(data: BatalkanAntreanDto): Promise<unknown> {
+  return antreanRepo.batalkanAntrean(data);
 }

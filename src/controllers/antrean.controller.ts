@@ -62,7 +62,7 @@ export async function cancelAntrean(req: Request, res: Response): Promise<Respon
       return res.status(400).json({ success: false, message: "Alasan pembatalan wajib diisi" });
     }
 
-    await antreanService.cancelAntrean(antrean_id, alasan);
+    await antreanService.cancelAntrean({antrean_id, alasan});
 
     return res.status(200).json({
       success: true,

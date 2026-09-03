@@ -2,7 +2,8 @@ import { pool } from "@config/db";
 import type { 
   CreateAntreanDto, 
   KuotaDokterReport, 
-  AntreanHariIniReport 
+  AntreanHariIniReport, 
+  BatalkanAntreanDto
 } from "@models/antrean.model";
 
 export async function findKuotaDokter(): Promise<KuotaDokterReport[]> {
@@ -29,12 +30,9 @@ export async function getAntreanHariIni(): Promise<AntreanHariIniReport[]> {
   return result.rows;
 }
 
-export async function batalkanAntrean(
-  antreanId: number,
-  alasan: string
-): Promise<void> {
+export async function batalkanAntrean(data: BatalkanAntreanDto): Promise<void> {
   await pool.query("CALL sp_batalkan_antrean_pasien($1, $2)", [
-    antreanId,
-    alasan,
+    data.antrean_id,
+    data.alasan,
   ]);
 }
