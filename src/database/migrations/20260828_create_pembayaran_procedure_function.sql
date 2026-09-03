@@ -25,7 +25,9 @@ CREATE OR REPLACE PROCEDURE sp_proses_pembayaran(
     p_diskon DECIMAL, 
     p_metode_pembayaran VARCHAR DEFAULT 'Cash'
 )
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql 
+SECURITY DEFINER
+AS $$
 DECLARE
     v_netto DECIMAL;
     v_bruto DECIMAL;

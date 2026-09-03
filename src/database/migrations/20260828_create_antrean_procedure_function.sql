@@ -18,7 +18,9 @@ CREATE OR REPLACE PROCEDURE sp_daftar_antrean_pasien(
     p_nik VARCHAR, p_nama VARCHAR, p_tgl_lahir DATE, p_telp VARCHAR, 
     p_dokter_id INT, p_tgl_berobat DATE
 )
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 DECLARE
     v_pasien_id INT;
     v_no_antrean INT;
@@ -45,7 +47,9 @@ CREATE OR REPLACE PROCEDURE sp_batalkan_antrean_pasien(
     p_antrean_id INT,
     p_alasan TEXT
 )
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 DECLARE
     v_status VARCHAR(20);
 BEGIN

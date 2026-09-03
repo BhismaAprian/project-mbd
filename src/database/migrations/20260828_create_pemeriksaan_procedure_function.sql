@@ -5,13 +5,34 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE PROCEDURE sp_restock_obat(
+    p_obat_id INT, 
+    p_jumlah INT
+)
+LANGUAGE plpgsql 
+SECURITY DEFINER AS $$
+BEGIN
+    IF p_jumlah <= 0 THEN 
+        RAISE EXCEPTION 'Jumlah restock harus lebih dari 0'; 
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM obat WHERE id = p_obat_id) THEN
+        RAISE EXCEPTION 'Obat ID % tidak ditemukan', p_obat_id;
+    END IF;
+    
+    UPDATE obat SET stok = stok + p_jumlah WHERE id = p_obat_id;
+END;
+$$;
+
 CREATE OR REPLACE PROCEDURE sp_selesaikan_pemeriksaan(
     p_antrean_id INT, 
     p_diagnosa TEXT, 
     p_catatan_dokter TEXT, 
     p_resep JSONB DEFAULT NULL
 )
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 DECLARE
     v_pasien_id INT;
     v_status VARCHAR(20);

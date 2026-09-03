@@ -89,6 +89,29 @@ JOIN dokter d ON a.dokter_id = d.id
 WHERE a.tanggal_berobat = CURRENT_DATE
 ORDER BY a.nomor_antrean ASC;
 
+CREATE OR REPLACE VIEW v_master_pasien AS
+SELECT 
+    id,
+    nik,
+    nama_lengkap,
+    jenis_kelamin,
+    tanggal_lahir,
+    telepon,
+    alamat,
+    created_at
+FROM pasien;
+
+CREATE OR REPLACE VIEW v_master_dokter AS
+SELECT 
+    id,
+    nama_dokter,
+    spesialis,
+    tarif_jasa,
+    kuota_harian,
+    created_at
+FROM dokter;
+
+
 CREATE OR REPLACE VIEW v_log_aktivitas_terbaru AS
 SELECT 
     id,
