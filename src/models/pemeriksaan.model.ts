@@ -17,3 +17,8 @@ export interface StokObatReport {
   sisa_stok: number;
 }
 
+export interface RestockObatDto {
+  obat_id: number;
+  jumlah: number;
+}
+
