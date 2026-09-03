@@ -4,8 +4,12 @@ export interface CreateAntreanDto {
   tanggal_lahir: string;
   telepon?: string;
   dokter_id: number;
-  tanggal: string;
-  metadata?: Record<string, any>;
+  tanggal: string; 
+}
+
+export interface BatalkanAntreanDto {
+  antrean_id: number;
+  alasan: string;
 }
 
 export interface KuotaDokterReport {
@@ -16,4 +20,18 @@ export interface KuotaDokterReport {
   kuota_harian: number;
   total_terdaftar: number;
   sisa_kuota: number;
+}
+
+export interface AntreanHariIniReport {
+  antrean_id: number;
+  nomor_antrean: number;
+  nik: string;
+  nama_pasien: string;
+  telepon?: string;
+  nama_dokter: string;
+  spesialis: string;
+  tanggal_berobat: string;
+  status: 'Menunggu' | 'Periksa' | 'Selesai' | 'Batal';
+  alasan_batal?: string;
+  waktu_daftar: string;
 }
